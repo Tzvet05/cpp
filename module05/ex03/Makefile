@@ -12,7 +12,7 @@
 
 # Make parameters
 
-NAME =		formexecution
+NAME =		interns
 
 COMPILER =	c++
 
@@ -32,7 +32,8 @@ SRC =	main.cpp \
 	AForm.cpp \
 	PresidentialPardonForm.cpp \
 	RobotomyRequestForm.cpp \
-	ShrubberyCreationForm.cpp
+	ShrubberyCreationForm.cpp \
+	Intern.cpp
 
 # Compiled objects (mandatory)
 
