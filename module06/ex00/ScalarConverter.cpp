@@ -1,4 +1,3 @@
-#include <cstring>
 #include <limits>
 #include <sstream>
 #include <cerrno>
@@ -23,175 +22,104 @@ ScalarConverter::~ScalarConverter(void)
 {
 }
 
+static void	printImpossible(void)
+{
+	std::cout << "Char :   Impossible" << std::endl << "Int :    Impossible" << std::endl
+	<< "Float :  Impossible" << std::endl << "Double : Impossible" << std::endl;
+}
+
 static t_type	getType(const std::string literal)
 {
-	size_t	i = 0;
-	while (std::isspace(literal[i]) != 0)
-		i++;
-	if (literal[i] == '+' || literal[i] == '-')
-		i++;
-	if (literal[i] == '\0')
-		return (STRING);
-	bool	has_point = 0;
-	if (std::strncmp(&literal[i], "inf", 3) == 0 || std::strncmp(&literal[i], "nan", 3) == 0)
-	{
-		has_point = 1;
-		i += 3;
-	}
-	else
-	{
-		int	digit_before_point = std::isdigit(literal[i]);
-		while (std::isdigit(literal[i]) != 0)
-			i++;
-		if (literal[i] == '.' || literal[i] == 'e')
-			has_point = 1;
-		if (has_point == 1)
-		{
-			if (literal[i] == '.')
-				i++;
-			if (std::isdigit(literal[i]) == 0 && digit_before_point == 0)
-				return (STRING);
-			while (std::isdigit(literal[i]))
-				i++;
-			if (literal[i] == 'e')
-			{
-				i++;
-				if (literal[i] == '+' || literal[i] == '-')
-					i++;
-				if (std::isdigit(literal[i]) == 0)
-					return (STRING);
-				while (std::isdigit(literal[i]) != 0)
-					i++;
-			}
-		}
-	}
-	bool	is_float = 0;
-	if (has_point == 1 && literal[i] == 'f')
-	{
-		is_float = 1;
-		i++;
-	}
-	while (std::isspace(literal[i]) != 0)
-		i++;
-	if (literal[i] == '\0')
-	{
-		if (is_float == 1)
-			return (FLOAT);
-		else if (has_point == 1)
-			return (DOUBLE);
-		else
-			return (INTEGER);
-	}
-	else
-		return (STRING);
+	char*	end;
+	if (literal.length() == 1
+		&& ((literal[0] >= 32 && literal[0] <= 47)
+			|| (literal[0] >= 58 && literal[0] <= 126)))
+		return (CHAR);
+	std::strtoll(literal.c_str(), &end, 10);
+	if (literal.find_first_not_of("\t\n\v\f\r ",
+		(size_t)(end - literal.c_str())) == std::string::npos)
+		return (INTEGER);
+	std::strtof(literal.c_str(), &end);
+	if (end[0] == 'f' && literal.find_first_not_of("\t\n\v\f\r ",
+		(size_t)(end - literal.c_str()) + 1) == std::string::npos)
+		return (FLOAT);
+	std::strtod(literal.c_str(), &end);
+	if (literal.find_first_not_of("\t\n\v\f\r ",
+		(size_t)(end - literal.c_str())) == std::string::npos)
+		return (DOUBLE);
+	return (NONE);
 }
 
-static bool	is_round(const std::string& literal)
+template <typename Type>
+static bool	isRound(Type number)
 {
-	size_t	i = 0;
-	bool	has_digit = 0;
-	while (literal[i] != '\0' && literal[i] != '.' && literal[i] != 'e')
-	{
-		if (std::isdigit(literal[i]) != 0)
-			has_digit = 1;
-		i++;
-	}
-	if (literal[i] == '\0')
-		return (has_digit);
-	else if (literal[i] == '.')
-		i++;
-	while (literal[i] == '0')
-		i++;
-	return (std::isdigit(literal[i]) == 0);
+	std::stringstream	stream;
+	stream << number;
+	if (stream.str().find("e") != std::string::npos
+		|| stream.str().find(".") != std::string::npos)
+		return (0);
+	return (1);
 }
 
-template <typename TypeTmp, typename Type>
-static void	castPrint(const std::string& literal, t_type type)
+template <typename Type>
+static void	convertPrint(Type number)
 {
-	TypeTmp	castedTmp;
-	if (type == DOUBLE || type == FLOAT)
-		castedTmp = std::strtod(literal.c_str(), NULL);
-	else if (type == INTEGER)
-		castedTmp = std::strtol(literal.c_str(), NULL, 10);
-	else
-		castedTmp = static_cast<TypeTmp>(literal[0]);
-	if (errno == ERANGE
-		|| (type == STRING 
-			&& (castedTmp > static_cast<long>(std::numeric_limits<char>::max())
-				|| castedTmp < static_cast<long>(std::numeric_limits<char>::min())))
-		|| (type == FLOAT
-			&& (castedTmp > static_cast<double>(std::numeric_limits<float>::max())
-				|| castedTmp < static_cast<double>(-std::numeric_limits<float>::max())))
-		|| (type == INTEGER
-			&& (castedTmp > static_cast<long>(std::numeric_limits<int>::max())
-				|| castedTmp < static_cast<long>(-std::numeric_limits<int>::max()))))
+	if (errno == ERANGE)
 	{
-		std::cout << "char : impossible" << std::endl << "int : impossible" << std::endl << "float : impossible" << std::endl << "double : impossible" << std::endl;
-		return;
+		printImpossible();
+		return ;
 	}
-	Type	casted;
-	casted = static_cast<Type>(castedTmp);
-	std::stringstream	stream, streamFP;
-	if (type == FLOAT || type == DOUBLE)
-		streamFP << static_cast<Type>(casted);
-	std::cout << "char : ";
-	if ((type == FLOAT || type == DOUBLE || type == INTEGER)
-		&& (casted > static_cast<Type>(std::numeric_limits<char>::max())
-			|| casted < static_cast<Type>(std::numeric_limits<char>::min())))
-		std::cout << "impossible";
-	else if (std::isprint(static_cast<char>(casted)) != 0)
-	{
-		stream << static_cast<char>(casted);
-		std::cout << stream.str();
-		stream.str("");
-	}
+	std::cout << "Char :   ";
+	if (number != number
+		|| static_cast<double>(number) < static_cast<double>(std::numeric_limits<char>::min())
+		|| static_cast<double>(number) > static_cast<double>(std::numeric_limits<char>::max()))
+		std::cout << "Impossible";
+	else if (static_cast<char>(number) < 32 || static_cast<char>(number) > 126)
+		std::cout << "Non displayable";
 	else
-		std::cout << "non displayable";
-	std::cout << std::endl << "int : ";
-	if ((type == FLOAT || type == DOUBLE)
-		&& (casted > static_cast<Type>(std::numeric_limits<int>::max())
-			|| casted < static_cast<Type>(std::numeric_limits<int>::min())))
-		std::cout << "impossible";
+		std::cout << static_cast<char>(number);
+	std::cout << std::endl << "Int :    ";
+	if (number != number
+		|| static_cast<double>(number) < static_cast<double>(std::numeric_limits<int>::min())
+		|| static_cast<double>(number) > static_cast<double>(std::numeric_limits<int>::max()))
+		std::cout << "Impossible";
 	else
-	{
-		stream << static_cast<int>(casted);
-		std::cout << stream.str();
-		stream.str("");
-	}
-	std::cout << std::endl << "float : ";
-	if (type == DOUBLE
-		&& (casted > static_cast<Type>(std::numeric_limits<float>::max())
-			|| casted < static_cast<Type>(-std::numeric_limits<float>::max())))
-		std::cout << "impossible";
+		std::cout << static_cast<int>(number);
+	std::cout << std::endl << "Float :  ";
+	if (static_cast<double>(number) != static_cast<double>(std::numeric_limits<float>::infinity())
+		&& static_cast<double>(number) != -static_cast<double>(std::numeric_limits<float>::infinity())
+		&& (static_cast<double>(number) < static_cast<double>(-std::numeric_limits<float>::max())
+		|| static_cast<double>(number) > static_cast<double>(std::numeric_limits<float>::max())))
+		std::cout << "Impossible";
 	else
 	{
-		stream << static_cast<float>(casted);
-		std::cout << stream.str();
-		if (is_round(stream.str()) == 1 && stream.str().find("e") == std::string::npos)
+		std::cout << static_cast<float>(number);
+		if (static_cast<double>(number) != static_cast<double>(std::numeric_limits<float>::infinity())
+			&& static_cast<double>(number) != -static_cast<double>(std::numeric_limits<float>::infinity())
+			&& number == number && isRound(static_cast<float>(number)) == 1)
 			std::cout << ".0";
-		stream.str("");
 		std::cout << "f";
 	}
-	std::cout << std::endl << "double : ";
-	stream << static_cast<double>(casted);
-	std::cout << stream.str();
-	if (is_round(stream.str()) == 1 && stream.str().find("e") == std::string::npos)
+	std::cout << std::endl << "Double : " << static_cast<double>(number);
+	if (static_cast<double>(number) != static_cast<double>(std::numeric_limits<double>::infinity())
+		&& static_cast<double>(number) != -static_cast<double>(std::numeric_limits<double>::infinity())
+		&& number == number && isRound(static_cast<double>(number)) == 1)
 		std::cout << ".0";
-	stream.str("");
 	std::cout << std::endl;
 }
 
 void	ScalarConverter::convert(const std::string literal)
 {
 	t_type	type = getType(literal);
-	if (type == STRING && literal.length() == 1)
-		castPrint<long, char>(literal, type);
+	errno = 0;
+	if (type == CHAR)
+		convertPrint<char>(literal[0]);
 	else if (type == INTEGER)
-		castPrint<long, int>(literal, type);
+		convertPrint<long>(std::strtoll(literal.c_str(), NULL, 10));
 	else if (type == FLOAT)
-		castPrint<double, float>(literal, type);
+		convertPrint<float>(std::strtof(literal.c_str(), NULL));
 	else if (type == DOUBLE)
-		castPrint<double, double>(literal, type);
+		convertPrint<double>(std::strtod(literal.c_str(), NULL));
 	else
-		std::cout << "char : impossible" << std::endl << "int : impossible" << std::endl << "float : impossible" << std::endl << "double : impossible" << std::endl;
+		printImpossible();
 }

@@ -4,17 +4,18 @@
 
 typedef enum	type
 {
-	STRING,
+	CHAR,
 	INTEGER,
 	FLOAT,
-	DOUBLE
+	DOUBLE,
+	NONE
 }	t_type;
 
 class	ScalarConverter
 {
 	public:
 		static void	convert(const std::string literal);
-	protected:
+	private:
 		ScalarConverter(void);
 		ScalarConverter(const ScalarConverter& scalarConverter);
 		ScalarConverter& operator=(const ScalarConverter&);
