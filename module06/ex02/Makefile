@@ -27,7 +27,8 @@ COLOR_WHITE =	\033[1;38;5m
 
 # Source code (mandatory)
 
-SRC =	main.cpp
+SRC =	main.cpp \
+	Base.cpp
 
 # Compiled objects (mandatory)
 
