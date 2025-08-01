@@ -110,6 +110,11 @@ static void	convertPrint(Type number)
 
 void	ScalarConverter::convert(const std::string literal)
 {
+	if (literal.length() == 0)
+	{
+		printImpossible();
+		return;
+	}
 	t_type	type = getType(literal);
 	errno = 0;
 	if (type == CHAR)
