@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include "Bureaucrat.hpp"
 #include "ShrubberyCreationForm.hpp"
 
 ShrubberyCreationForm::ShrubberyCreationForm(void): AForm("ShrubberyCreationForm", 145, 137), _target("Target")
@@ -24,8 +25,12 @@ ShrubberyCreationForm::ShrubberyCreationForm(const std::string& target): AForm("
 {
 }
 
-void	ShrubberyCreationForm::executeMe(void) const
+void	ShrubberyCreationForm::execute(Bureaucrat const & executor) const
 {
+	if (this->getSigned() == 0)
+		throw(FormUnsignedException());
+	else if (executor.getGrade() > this->getExecGrade())
+		throw(GradeTooLowException());
 	std::ofstream	outfile((_target + "_shrubbery").c_str());
 	outfile << "       _-_                 _-_" << std::endl <<
 		"    /~~   ~~\\           /~~   ~~\\" << std::endl <<

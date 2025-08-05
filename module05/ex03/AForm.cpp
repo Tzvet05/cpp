@@ -32,7 +32,6 @@ AForm::AForm(const std::string name, unsigned int signGrade, unsigned int execGr
 	_signed = 0;
 }
 
-
 const std::string&	AForm::getName(void) const
 {
 	return (_name);
@@ -58,15 +57,6 @@ void	AForm::beSigned(Bureaucrat& bureaucrat)
 	if (bureaucrat.getGrade() > _signGrade)
 		throw (GradeTooLowException());
 	_signed = 1;
-}
-
-void	AForm::execute(Bureaucrat const & executor) const
-{
-	if (_signed == 0)
-		throw(FormUnsignedException());
-	else if (executor.getGrade() > _execGrade)
-		throw(GradeTooLowException());
-	executeMe();
 }
 
 std::ostream& operator<<(std::ostream& os, const AForm& form)

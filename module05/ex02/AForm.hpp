@@ -20,36 +20,35 @@ class	AForm
 		unsigned int		getSignGrade(void) const;
 		unsigned int		getExecGrade(void) const;
 
-		void	beSigned(Bureaucrat& bureaucrat);
-		void	execute(Bureaucrat const & executor) const;
-		virtual void	executeMe(void) const = 0;
+		void		beSigned(Bureaucrat& bureaucrat);
+		virtual void	execute(Bureaucrat const & executor) const = 0;
 	private:
 		const std::string	_name;
 		bool			_signed;
 		const unsigned int	_signGrade;
 		const unsigned int	_execGrade;
+	protected:
+		class	GradeTooHighException: public std::exception
+		{
+			public:
+				GradeTooHighException(void);
 
-	class	GradeTooHighException: public std::exception
-	{
-		public:
-			GradeTooHighException(void);
+				const char*	what(void) const throw();
+		};
+		class	GradeTooLowException: public std::exception
+		{
+			public:
+				GradeTooLowException(void);
 
-			const char*	what(void) const throw();
-	};
-	class	GradeTooLowException: public std::exception
-	{
-		public:
-			GradeTooLowException(void);
+				const char*	what(void) const throw();
+		};
+		class	FormUnsignedException: public std::exception
+		{
+			public:
+				FormUnsignedException(void);
 
-			const char*	what(void) const throw();
-	};
-	class	FormUnsignedException: public std::exception
-	{
-		public:
-			FormUnsignedException(void);
-
-			const char*	what(void) const throw();
-	};
+				const char*	what(void) const throw();
+		};
 };
 
 std::ostream& operator<<(std::ostream& os, const AForm& form);
