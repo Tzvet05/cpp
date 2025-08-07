@@ -77,7 +77,7 @@ static void	convertPrint(Type number)
 	else if (static_cast<char>(number) < 32 || static_cast<char>(number) > 126)
 		std::cout << "Non displayable";
 	else
-		std::cout << static_cast<char>(number);
+		std::cout << "'" << static_cast<char>(number) << "'";
 	std::cout << std::endl << "Int :    ";
 	if (number != number
 		|| static_cast<double>(number) < static_cast<double>(std::numeric_limits<int>::min())

@@ -12,7 +12,7 @@
 
 # Make parameters
 
-NAME =		scalarconverter
+NAME =		convert
 
 COMPILER =	c++
 

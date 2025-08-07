@@ -19,5 +19,5 @@ class	ScalarConverter
 		ScalarConverter(void);
 		ScalarConverter(const ScalarConverter& scalarConverter);
 		ScalarConverter& operator=(const ScalarConverter&);
-		~ScalarConverter(void);
+		virtual	~ScalarConverter(void) = 0;
 };
