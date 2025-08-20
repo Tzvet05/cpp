@@ -24,6 +24,14 @@ int	main(void)
 		std::cout << *it << std::endl;
 		++it;
 	}
+	std::cout << std::endl;
+	MutantStack<int>::const_reverse_iterator	crit = mstack1.rbegin();
+	MutantStack<int>::const_reverse_iterator	crite = mstack1.rend();
+	while (crit != crite)
+	{
+		std::cout << *crit << std::endl;
+		++crit;
+	}
 
 	std::cout << "With a MutantStack :" << std::endl;
 
