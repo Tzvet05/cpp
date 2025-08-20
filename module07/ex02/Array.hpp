@@ -25,6 +25,7 @@ class	Array
 			if (this != &rhs)
 			{
 				_size = rhs._size;
+				delete[] _buffer;
 				_buffer = new T[_size];
 				std::memcpy(_buffer, rhs._buffer, _size * sizeof(T));
 			}
@@ -42,12 +43,12 @@ class	Array
 			bzero(_buffer, _size * sizeof(T));
 		}
 
-		size_t	size(void)
+		size_t	size(void) const
 		{
 			return (_size);
 		}
 
-		T& operator[](ssize_t index)
+		T& operator[](ssize_t index) const
 		{
 			if (index < 0 || (size_t)index >= _size)
 				throw (IndexOutOfBoundsException());
