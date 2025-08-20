@@ -22,9 +22,7 @@ Data& Data::operator=(const Data& rhs)
 	return (*this);
 }
 
-Data::~Data(void)
-{
-}
+Data::~Data(void) {}
 
 Data::Data(const std::string& name, size_t len)
 {

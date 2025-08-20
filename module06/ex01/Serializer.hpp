@@ -13,5 +13,5 @@ class	Serializer
 		Serializer(void);
 		Serializer(const Serializer& serializer);
 		Serializer& operator=(const Serializer&);
-		~Serializer(void);
+		virtual	~Serializer(void) = 0;
 };
