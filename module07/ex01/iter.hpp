@@ -1,10 +1,17 @@
 #pragma once
 
-template <typename TypeArr, typename TypeLen, typename TypeFunc>
-void	iter(TypeArr* arr, TypeLen len, TypeFunc func)
+template <typename Type>
+void	iter(const Type* arr, size_t len, void (*f)(const Type&))
 {
-	for (TypeLen i = 0; i < len; i++)
-		func(arr[i]);
+	for (size_t i = 0; i < len; i++)
+		f(arr[i]);
+}
+
+template <typename Type>
+void	iter(Type* arr, size_t len, void (*f)(Type&))
+{
+	for (size_t i = 0; i < len; i++)
+		f(arr[i]);
 }
 
 template <typename Type>
@@ -17,4 +24,10 @@ template <typename Type>
 void	inc(Type& to_inc)
 {
 	to_inc++;
+}
+
+template <typename Type>
+void	dec(Type& to_dec)
+{
+	to_dec--;
 }
