@@ -29,5 +29,10 @@ int	main(void)
 	std::cout << arr3[3] << std::endl;
 	std::cout << arr2[3] << std::endl;
 	std::cout << arr1.size() << std::endl;
+	const Array<int>	const_arr(arr2);
+	std::cout << const_arr[1] << std::endl;
+	Array<float>	arrf(3);
+	arrf[1] = 5.2f;
+	std::cout << arrf[1] << std::endl;
 	return (0);
 }
