@@ -48,9 +48,16 @@ class	Array
 			return (_size);
 		}
 
-		T& operator[](ssize_t index) const
+		const T&	operator[](size_t index) const
 		{
-			if (index < 0 || (size_t)index >= _size)
+			if (index >= _size)
+				throw (IndexOutOfBoundsException());
+			return (_buffer[index]);
+		}
+
+		T&	operator[](size_t index)
+		{
+			if (index >= _size)
 				throw (IndexOutOfBoundsException());
 			return (_buffer[index]);
 		}
