@@ -23,9 +23,9 @@ Span&	Span::operator=(const Span& rhs)
 
 Span::~Span(void) {}
 
-Span::Span(unsigned int n)
+Span::Span(unsigned int N)
 {
-	_size = (size_t)n;
+	_size = (size_t)N;
 }
 
 void	Span::addNumber(int n)
@@ -41,8 +41,8 @@ size_t	Span::shortestSpan(void)
 		throw InsufficientElementsException();
 	std::sort(_numbers.begin(), _numbers.end(), std::less<int>());
 	size_t	span = _numbers.back() - _numbers.front();
-	for (std::vector<int>::iterator it = _numbers.begin(); it != _numbers.end(); it++)
-		if (it + 1 != _numbers.end() && (size_t)(*(it + 1) - *it) < span)
+	for (std::vector<int>::iterator it = _numbers.begin(); it + 1 != _numbers.end(); it++)
+		if ((size_t)(*(it + 1) - *it) < span)
 			span = *(it + 1) - *it;
 	return (span);
 }

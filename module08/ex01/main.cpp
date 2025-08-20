@@ -1,5 +1,6 @@
 #include <iostream>
 #include <ctime>
+#include <deque>
 #include "Span.hpp"
 
 int	main(void)
@@ -20,14 +21,14 @@ int	main(void)
 	}
 
 	const int	arr[] = {6, -1, 75, -391, 4, 36, -2};
-	std::vector<int>	vec(arr, arr + sizeof(arr) / sizeof(arr[0]));
+	std::deque<int>	deq(arr, arr + sizeof(arr) / sizeof(arr[0]));
 	Span	span3(10);
 	span3.addNumber(69);
 	span3.addNumber(-15);
-	span3.addNumbersRange(vec.begin(), vec.end());
+	span3.addNumbersRange(deq.begin(), deq.end());
 	try
 	{
-		span3.addNumbersRange(vec.begin(), vec.end());
+		span3.addNumbersRange(deq.begin(), deq.end());
 	}
 	catch (std::exception& e)
 	{
