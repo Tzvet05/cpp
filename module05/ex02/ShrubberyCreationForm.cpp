@@ -13,7 +13,8 @@ ShrubberyCreationForm::ShrubberyCreationForm(const ShrubberyCreationForm& shrubb
 
 ShrubberyCreationForm& ShrubberyCreationForm::operator=(const ShrubberyCreationForm& rhs)
 {
-	(void)rhs;
+	if (this != &rhs)
+		_signed = rhs._signed;
 	return (*this);
 }
 

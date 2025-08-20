@@ -13,7 +13,8 @@ RobotomyRequestForm::RobotomyRequestForm(const RobotomyRequestForm& robotomyRequ
 
 RobotomyRequestForm& RobotomyRequestForm::operator=(const RobotomyRequestForm& rhs)
 {
-	(void)rhs;
+	if (this != &rhs)
+		_signed = rhs._signed;
 	return (*this);
 }
 

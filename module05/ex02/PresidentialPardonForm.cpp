@@ -12,7 +12,8 @@ PresidentialPardonForm::PresidentialPardonForm(const PresidentialPardonForm& pre
 
 PresidentialPardonForm& PresidentialPardonForm::operator=(const PresidentialPardonForm& rhs)
 {
-	(void)rhs;
+	if (this != &rhs)
+		_signed = rhs._signed;
 	return (*this);
 }
 
