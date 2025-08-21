@@ -40,11 +40,14 @@ size_t	Span::shortestSpan(void)
 	if (_numbers.size() <= 1)
 		throw InsufficientElementsException();
 	std::sort(_numbers.begin(), _numbers.end(), std::less<int>());
-	size_t	span = _numbers.back() - _numbers.front();
+	size_t	shortest_span = (size_t)(_numbers.back() - _numbers.front()), curr_span;
 	for (std::vector<int>::iterator it = _numbers.begin(); it + 1 != _numbers.end(); it++)
-		if ((size_t)(*(it + 1) - *it) < span)
-			span = *(it + 1) - *it;
-	return (span);
+	{
+		curr_span = (size_t)(*(it + 1) - *it);
+		if (curr_span < shortest_span)
+			shortest_span = curr_span;
+	}
+	return (shortest_span);
 }
 
 size_t	Span::longestSpan(void)
