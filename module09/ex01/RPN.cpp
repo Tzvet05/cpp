@@ -1,6 +1,4 @@
 #include <sstream>
-#include <cstdlib>
-#include <algorithm>
 #include "RPN.hpp"
 
 RPN::RPN(void) {}
@@ -69,7 +67,7 @@ std::string	RPN::process(void)
 	_expression.pop();
 	if (number.find_first_not_of("0123456789") != std::string::npos)
 		return ("0");
-	long	result = std::strtol(number.c_str(), NULL, 10);
+	long	result = (long)number[0] - 48;
 	while (!_expression.empty())
 	{
 		number = _expression.top();
@@ -80,8 +78,7 @@ std::string	RPN::process(void)
 			|| operation.find_first_not_of("+-*/") != std::string::npos
 			|| (number == "0" && operation == "/"))
 			return ("0");
-		result = perform_operation(result, operation,
-			std::strtol(number.c_str(), NULL, 10));
+		result = perform_operation(result, operation, (long)number[0] - 48);
 	}
 	std::stringstream	ss;
 	ss << result;
