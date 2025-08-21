@@ -29,6 +29,7 @@ PmergeMeVector::~PmergeMeVector(void) {}
 
 PmergeMeVector::PmergeMeVector(char** arr): _duration(0)
 {
+	std::clock_t	clock_start = std::clock();
 	char*	str_nbr;
 	long	nbr;
 	size_t	i_arr = 0, i_nbr = 0;
@@ -64,6 +65,8 @@ PmergeMeVector::PmergeMeVector(char** arr): _duration(0)
 		_vector.push_back(static_cast<int>(nbr));
 		i_arr++;
 	}
+	std::clock_t	clock_end = std::clock();
+	_duration += (clock_end - clock_start);
 }
 
 std::vector<int>	PmergeMeVector::get_vector(void) const
@@ -169,7 +172,7 @@ void	PmergeMeVector::sort(void)
 		len_elem /= 2;
 	}
 	std::clock_t	clock_end = std::clock();
-	_duration = (clock_end - clock_start);
+	_duration += (clock_end - clock_start);
 }
 
 std::string	PmergeMeVector::print(void)
@@ -235,6 +238,7 @@ PmergeMeDeque::~PmergeMeDeque(void) {}
 
 PmergeMeDeque::PmergeMeDeque(char** arr): _duration(0)
 {
+	std::clock_t	clock_start = std::clock();
 	char*	str_nbr;
 	long	nbr;
 	size_t	i_arr = 0, i_nbr = 0;
@@ -270,6 +274,8 @@ PmergeMeDeque::PmergeMeDeque(char** arr): _duration(0)
 		_deque.push_back(static_cast<int>(nbr));
 		i_arr++;
 	}
+	std::clock_t	clock_end = std::clock();
+	_duration += (clock_end - clock_start);
 }
 
 std::deque<int>	PmergeMeDeque::get_deque(void) const
@@ -375,7 +381,7 @@ void	PmergeMeDeque::sort(void)
 		len_elem /= 2;
 	}
 	std::clock_t	clock_end = std::clock();
-	_duration = (clock_end - clock_start);
+	_duration += (clock_end - clock_start);
 }
 
 std::string	PmergeMeDeque::print(void)

@@ -3,7 +3,7 @@
 
 int	main(int argc, char** argv)
 {
-	static_cast<void>(argc);
+	(void)argc;
 	try
 	{
 		PmergeMeVector	pmergeme_vector(&argv[1]);
