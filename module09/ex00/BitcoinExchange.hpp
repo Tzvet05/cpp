@@ -52,9 +52,9 @@ class	BitcoinExchange
 		BitcoinExchange& operator=(const BitcoinExchange& rhs);
 		~BitcoinExchange(void);
 
-		bool	date_is_valid(std::string date);
-		bool	rate_is_valid(std::string rate);
-		bool	value_is_valid(std::string value);
+		bool	date_is_valid(std::string date) const;
+		bool	rate_is_valid(std::string rate) const;
+		bool	value_is_valid(std::string value) const;
 		float	retrieve_rate(Date& date);
 		void	calculateValues(std::string infile_name);
 

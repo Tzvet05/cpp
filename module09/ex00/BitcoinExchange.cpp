@@ -104,7 +104,7 @@ float	Rate::get_rate(void) const
 	return (_rate);
 }
 
-bool	BitcoinExchange::date_is_valid(std::string date)
+bool	BitcoinExchange::date_is_valid(std::string date) const
 {
 	ssize_t	len = std::min(date.find("-"), date.length());
 	if (len == 0 || date.substr(0, len).find_first_not_of("0123456789") != std::string::npos)
@@ -144,7 +144,7 @@ bool	BitcoinExchange::date_is_valid(std::string date)
 	return (true);
 }
 
-bool	BitcoinExchange::rate_is_valid(std::string rate)
+bool	BitcoinExchange::rate_is_valid(std::string rate) const
 {
 	if (rate.length() == 0 || rate.find_first_of("0123456789") == std::string::npos || rate.find_first_not_of("0123456789.-") != std::string::npos)
 		return (false);
@@ -154,7 +154,7 @@ bool	BitcoinExchange::rate_is_valid(std::string rate)
 	return (true);
 }
 
-bool	BitcoinExchange::value_is_valid(std::string value)
+bool	BitcoinExchange::value_is_valid(std::string value) const
 {
 	if (value.length() == 0 || value.find_first_of("0123456789") == std::string::npos || value.find_first_not_of("0123456789.") != std::string::npos)
 		return (false);
@@ -170,9 +170,10 @@ BitcoinExchange::BitcoinExchange(void)
 	if (!infile.is_open())
 		throw FileOpeningException();
 	std::string line;
-	getline(infile, line);
 	while (getline(infile, line))
 	{
+		if (line == "date,exchange_rate")
+			continue;
 		size_t	len = std::min(line.find(","), line.length());
 		std::string	str_date = line.substr(0, len);
 		if (!date_is_valid(str_date))
@@ -247,9 +248,10 @@ void	BitcoinExchange::calculateValues(std::string infile_name)
 	if (!infile.is_open())
 		throw FileOpeningException();
 	std::string line;
-	getline(infile, line);
 	while (getline(infile, line))
 	{
+		if (line == "date | value")
+			continue;
 		size_t	len = std::min(line.find(" | "), line.length());
 		std::string	str_date = line.substr(0, len);
 		if (!date_is_valid(str_date))
