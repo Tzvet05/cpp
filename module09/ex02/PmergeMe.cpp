@@ -1,19 +1,15 @@
-#include <limits.h>
+#include <limits>
 #include <sstream>
 #include <cstdlib>
 #include <ctime>
 #include <cerrno>
 #include "PmergeMe.hpp"
 
-// Vector
+////////// Vector
 
 PmergeMeVector::PmergeMeVector(void): _duration(0) {}
 
-PmergeMeVector::PmergeMeVector(const PmergeMeVector& pmergemevector)
-{
-	_vector = pmergemevector._vector;
-	_duration = pmergemevector._duration;
-}
+PmergeMeVector::PmergeMeVector(const PmergeMeVector& pmergemevector): _vector(pmergemevector._vector), _duration(pmergemevector._duration) {}
 
 PmergeMeVector&	PmergeMeVector::operator=(const PmergeMeVector& rhs)
 {
@@ -30,38 +26,28 @@ PmergeMeVector::~PmergeMeVector(void) {}
 PmergeMeVector::PmergeMeVector(char** arr): _duration(0)
 {
 	std::clock_t	clock_start = std::clock();
-	char*	str_nbr;
+	std::string	str_nbr;
 	long	nbr;
-	size_t	i_arr = 0, i_nbr = 0;
+	size_t	i_arr = 0, i_nbr;
 	while (arr[i_arr] != NULL)
 	{
-		str_nbr = arr[i_arr];
+		str_nbr = std::string(arr[i_arr]);
 		i_nbr = 0;
-		if (str_nbr[i_nbr] == '+' || str_nbr[i_nbr] == '-')
+
+		if (str_nbr[i_nbr] == '+')
 			i_nbr++;
-		if (str_nbr[i_nbr] < '0' || str_nbr[i_nbr] > '9')
-		{
-			std::string	error(str_nbr);
-			throw NotANumberException(error);
-		}
-		while (str_nbr[i_nbr] >= '0' && str_nbr[i_nbr] <= '9')
+		else if (str_nbr[i_nbr] == '-')
+			throw NegativeNumberException(str_nbr);
+		if (!std::isdigit(str_nbr[i_nbr]))
+			throw NotANumberException(str_nbr);
+		while (std::isdigit(str_nbr[i_nbr]))
 			i_nbr++;
 		if (str_nbr[i_nbr] != '\0')
-		{
-			std::string	error(str_nbr);
-			throw NotANumberException(error);
-		}
-		nbr = std::strtol(str_nbr, NULL, 10);
-		if (errno == ERANGE || nbr > INT_MAX)
-		{
-			std::string	error(str_nbr);
-			throw NumberTooLargeException(error);
-		}
-		else if (nbr < 0)
-		{
-			std::string	error(str_nbr);
-			throw NegativeNumberException(error);
-		}
+			throw NotANumberException(str_nbr);
+
+		nbr = std::strtol(str_nbr.c_str(), NULL, 10);
+		if (errno == ERANGE || nbr > std::numeric_limits<int>::max())
+			throw NumberTooLargeException(str_nbr);
 		_vector.push_back(static_cast<int>(nbr));
 		i_arr++;
 	}
@@ -120,65 +106,68 @@ void	PmergeMeVector::sort(void)
 		len_elem *= 2;
 	}
 	len_elem /= 2;
+
 	while (len_elem >= 1)
 	{
-		std::vector<int>	main, pend;
-		main.insert(main.begin(), _vector.begin(), _vector.begin() + len_elem);
-		enum Partition	part = MAIN;
+		std::vector<int>	winners, losers;
+		winners.insert(winners.begin(), _vector.begin(), _vector.begin() + len_elem);
+		enum Partition	part = WINNERS;
 		size_t	i_elem = len_elem;
 		while (i_elem + len_elem <= _vector.size())
 		{
-			if (part == MAIN)
+			if (part == WINNERS)
 			{
-				main.insert(main.end(), _vector.begin() + i_elem,
+				winners.insert(winners.end(), _vector.begin() + i_elem,
 					_vector.begin() + i_elem + len_elem);
-				part = PEND;
+				part = LOSERS;
 			}
 			else
 			{
-				pend.insert(pend.end(), _vector.begin() + i_elem,
+				losers.insert(losers.end(), _vector.begin() + i_elem,
 					_vector.begin() + i_elem + len_elem);
-				part = MAIN;
+				part = WINNERS;
 			}
 			i_elem += len_elem;
 		}
 		_vector.erase(_vector.begin(), _vector.begin() + i_elem);
+
 		size_t	curr_jacobshtal = 3, prev_jacobsthal = 1, tmp_jacobsthal,
-			diff_jacobsthal, i_jacobsthal, n_sorted = 0;
-		while (n_sorted < pend.size() / len_elem)
+			diff_jacobsthal, i_jacobsthal, n_inserted = 0;
+		while (n_inserted < losers.size() / len_elem)
 		{
 			diff_jacobsthal = std::min(curr_jacobshtal - prev_jacobsthal,
-				(pend.size() / len_elem) - n_sorted);
+				(losers.size() / len_elem) - n_inserted);
 			i_jacobsthal = 0;
 			while (i_jacobsthal < diff_jacobsthal)
 			{
-				int	v = pend[(prev_jacobsthal
+				int	v_cmp = losers[(prev_jacobsthal
 					+ (diff_jacobsthal - i_jacobsthal) - 1) * len_elem - 1];
-				size_t	i_pos = binary_search(main, std::min(prev_jacobsthal
-					+ (diff_jacobsthal - i_jacobsthal) + n_sorted,
-					main.size() / len_elem), v, len_elem);
-				main.insert(main.begin() + (i_pos * len_elem), pend.begin()
+				size_t	i_insert = binary_search(winners, std::min(prev_jacobsthal
+					+ (diff_jacobsthal - i_jacobsthal) + n_inserted,
+					winners.size() / len_elem), v_cmp, len_elem);
+				winners.insert(winners.begin() + (i_insert * len_elem), losers.begin()
 					+ (prev_jacobsthal + (diff_jacobsthal - i_jacobsthal) - 2)
-					* len_elem, pend.begin() + (prev_jacobsthal
+					* len_elem, losers.begin() + (prev_jacobsthal
 					+ (diff_jacobsthal - i_jacobsthal) - 1) * len_elem);
 				i_jacobsthal++;
-				n_sorted++;
+				n_inserted++;
 			}
 			tmp_jacobsthal = prev_jacobsthal;
 			prev_jacobsthal = curr_jacobshtal;
 			curr_jacobshtal += 2 * tmp_jacobsthal;
 		}
-		_vector.insert(_vector.begin(), main.begin(), main.end());
+
+		_vector.insert(_vector.begin(), winners.begin(), winners.end());
 		len_elem /= 2;
 	}
 	std::clock_t	clock_end = std::clock();
 	_duration += (clock_end - clock_start);
 }
 
-std::string	PmergeMeVector::print(void)
+std::string	PmergeMeVector::print(void) const
 {
 	std::stringstream	ss;
-	for (std::vector<int>::iterator it = _vector.begin(); it != _vector.end(); it++)
+	for (std::vector<int>::const_iterator it = _vector.begin(); it != _vector.end(); it++)
 	{
 		ss << *it;
 		if (it + 1 != _vector.end())
@@ -214,15 +203,11 @@ const char*	PmergeMeVector::NegativeNumberException::what(void) const throw()
 	return (_error.c_str());
 }
 
-// Deque
+////////// Deque
 
 PmergeMeDeque::PmergeMeDeque(void): _duration(0) {}
 
-PmergeMeDeque::PmergeMeDeque(const PmergeMeDeque& pmergemedeque)
-{
-	_deque = pmergemedeque._deque;
-	_duration = pmergemedeque._duration;
-}
+PmergeMeDeque::PmergeMeDeque(const PmergeMeDeque& pmergemedeque): _deque(pmergemedeque._deque), _duration(pmergemedeque._duration) {}
 
 PmergeMeDeque&	PmergeMeDeque::operator=(const PmergeMeDeque& rhs)
 {
@@ -239,38 +224,28 @@ PmergeMeDeque::~PmergeMeDeque(void) {}
 PmergeMeDeque::PmergeMeDeque(char** arr): _duration(0)
 {
 	std::clock_t	clock_start = std::clock();
-	char*	str_nbr;
+	std::string	str_nbr;
 	long	nbr;
-	size_t	i_arr = 0, i_nbr = 0;
+	size_t	i_arr = 0, i_nbr;
 	while (arr[i_arr] != NULL)
 	{
-		str_nbr = arr[i_arr];
+		str_nbr = std::string(arr[i_arr]);
 		i_nbr = 0;
-		if (str_nbr[i_nbr] == '+' || str_nbr[i_nbr] == '-')
+
+		if (str_nbr[i_nbr] == '+')
 			i_nbr++;
-		if (str_nbr[i_nbr] < '0' || str_nbr[i_nbr] > '9')
-		{
-			std::string	error(str_nbr);
-			throw NotANumberException(error);
-		}
-		while (str_nbr[i_nbr] >= '0' && str_nbr[i_nbr] <= '9')
+		else if (str_nbr[i_nbr] == '-')
+			throw NegativeNumberException(str_nbr);
+		if (!std::isdigit(str_nbr[i_nbr]))
+			throw NotANumberException(str_nbr);
+		while (std::isdigit(str_nbr[i_nbr]))
 			i_nbr++;
 		if (str_nbr[i_nbr] != '\0')
-		{
-			std::string	error(str_nbr);
-			throw NotANumberException(error);
-		}
-		nbr = std::strtol(str_nbr, NULL, 10);
-		if (errno == ERANGE || nbr > INT_MAX)
-		{
-			std::string	error(str_nbr);
-			throw NumberTooLargeException(error);
-		}
-		else if (nbr < 0)
-		{
-			std::string	error(str_nbr);
-			throw NegativeNumberException(error);
-		}
+			throw NotANumberException(str_nbr);
+
+		nbr = std::strtol(str_nbr.c_str(), NULL, 10);
+		if (errno == ERANGE || nbr > std::numeric_limits<int>::max())
+			throw NumberTooLargeException(str_nbr);
 		_deque.push_back(static_cast<int>(nbr));
 		i_arr++;
 	}
@@ -329,65 +304,68 @@ void	PmergeMeDeque::sort(void)
 		len_elem *= 2;
 	}
 	len_elem /= 2;
+
 	while (len_elem >= 1)
 	{
-		std::deque<int>	main, pend;
-		main.insert(main.begin(), _deque.begin(), _deque.begin() + len_elem);
-		enum Partition	part = MAIN;
+		std::deque<int>	winners, losers;
+		winners.insert(winners.begin(), _deque.begin(), _deque.begin() + len_elem);
+		enum Partition	part = WINNERS;
 		size_t	i_elem = len_elem;
 		while (i_elem + len_elem <= _deque.size())
 		{
-			if (part == MAIN)
+			if (part == WINNERS)
 			{
-				main.insert(main.end(), _deque.begin() + i_elem,
+				winners.insert(winners.end(), _deque.begin() + i_elem,
 					_deque.begin() + i_elem + len_elem);
-				part = PEND;
+				part = LOSERS;
 			}
 			else
 			{
-				pend.insert(pend.end(), _deque.begin() + i_elem,
+				losers.insert(losers.end(), _deque.begin() + i_elem,
 					_deque.begin() + i_elem + len_elem);
-				part = MAIN;
+				part = WINNERS;
 			}
 			i_elem += len_elem;
 		}
 		_deque.erase(_deque.begin(), _deque.begin() + i_elem);
+
 		size_t	curr_jacobshtal = 3, prev_jacobsthal = 1, tmp_jacobsthal,
-			diff_jacobsthal, i_jacobsthal, n_sorted = 0;
-		while (n_sorted < pend.size() / len_elem)
+			diff_jacobsthal, i_jacobsthal, n_inserted = 0;
+		while (n_inserted < losers.size() / len_elem)
 		{
 			diff_jacobsthal = std::min(curr_jacobshtal - prev_jacobsthal,
-				(pend.size() / len_elem) - n_sorted);
+				(losers.size() / len_elem) - n_inserted);
 			i_jacobsthal = 0;
 			while (i_jacobsthal < diff_jacobsthal)
 			{
-				int	v = pend[(prev_jacobsthal
+				int	v_cmp = losers[(prev_jacobsthal
 					+ (diff_jacobsthal - i_jacobsthal) - 1) * len_elem - 1];
-				size_t	i_pos = binary_search(main, std::min(prev_jacobsthal
-					+ (diff_jacobsthal - i_jacobsthal) + n_sorted,
-					main.size() / len_elem), v, len_elem);
-				main.insert(main.begin() + (i_pos * len_elem), pend.begin()
+				size_t	i_insert = binary_search(winners, std::min(prev_jacobsthal
+					+ (diff_jacobsthal - i_jacobsthal) + n_inserted,
+					winners.size() / len_elem), v_cmp, len_elem);
+				winners.insert(winners.begin() + (i_insert * len_elem), losers.begin()
 					+ (prev_jacobsthal + (diff_jacobsthal - i_jacobsthal) - 2)
-					* len_elem, pend.begin() + (prev_jacobsthal
+					* len_elem, losers.begin() + (prev_jacobsthal
 					+ (diff_jacobsthal - i_jacobsthal) - 1) * len_elem);
 				i_jacobsthal++;
-				n_sorted++;
+				n_inserted++;
 			}
 			tmp_jacobsthal = prev_jacobsthal;
 			prev_jacobsthal = curr_jacobshtal;
 			curr_jacobshtal += 2 * tmp_jacobsthal;
 		}
-		_deque.insert(_deque.begin(), main.begin(), main.end());
+
+		_deque.insert(_deque.begin(), winners.begin(), winners.end());
 		len_elem /= 2;
 	}
 	std::clock_t	clock_end = std::clock();
 	_duration += (clock_end - clock_start);
 }
 
-std::string	PmergeMeDeque::print(void)
+std::string	PmergeMeDeque::print(void) const
 {
 	std::stringstream	ss;
-	for (std::deque<int>::iterator it = _deque.begin(); it != _deque.end(); it++)
+	for (std::deque<int>::const_iterator it = _deque.begin(); it != _deque.end(); it++)
 	{
 		ss << *it;
 		if (it + 1 != _deque.end())

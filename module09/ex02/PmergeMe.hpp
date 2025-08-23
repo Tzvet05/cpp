@@ -1,4 +1,3 @@
-#include <stddef.h>
 #include <string>
 #include <exception>
 #include <vector>
@@ -6,8 +5,8 @@
 
 enum	Partition
 {
-	MAIN,
-	PEND
+	WINNERS,
+	LOSERS
 };
 
 class	PmergeMeVector
@@ -24,7 +23,7 @@ class	PmergeMeVector
 		size_t			get_duration(void) const;
 
 		void		sort(void);
-		std::string	print(void);
+		std::string	print(void) const;
 
 	private:
 		size_t	binary_search(std::vector<int>& main,
@@ -82,7 +81,7 @@ class	PmergeMeDeque
 		size_t		get_duration(void) const;
 
 		void		sort(void);
-		std::string	print(void);
+		std::string	print(void) const;
 
 	private:
 		size_t	binary_search(std::deque<int>& main,
