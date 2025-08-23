@@ -14,6 +14,7 @@ class	Date
 		~Date(void);
 
 		Date(std::string date);
+
 		bool	operator<(const Date& rhs) const;
 		bool	operator==(const Date& rhs) const;
 
@@ -32,9 +33,9 @@ class	Rate
 		~Rate(void);
 
 		Rate(Date& date, std::string& str_rate);
-		bool	operator==(const Rate& rhs) const;
 
-		static bool	date_less(const Rate& lhs, const Rate& rhs);
+		bool	operator<(const Rate& rhs) const;
+		bool	operator==(const Rate& rhs) const;
 
 		Date	get_date(void) const;
 		float	get_rate(void) const;
